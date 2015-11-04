@@ -1,0 +1,32 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+  <head>
+    <meta name="generator" content="PhD">
+    <!-- Sitemap 1.0 -->
+  </head>
+  <body>
+    <object type="text/site properties">
+      <param name="Window Styles" value="0x800227">
+    </object>
+    <ul>
+    {% for index in indexesConstants %}
+    <LI><OBJECT type="text/sitemap">
+      <param name="Local" value="{{ apiPathName }}/{{ index['link'] }}">
+      <param name="Name" value="{{ index['index'] }}">
+    </OBJECT>
+    {% endfor %}
+    {% for index in indexesMethods %}
+    <LI><OBJECT type="text/sitemap">
+      <param name="Local" value="{{ apiPathName }}/{{ index['link'] }}">
+      <param name="Name" value="{{ index['index'] }}">
+    </OBJECT>
+    {% endfor %}
+    {% for index in indexesClasses %}
+    <LI><OBJECT type="text/sitemap">
+      <param name="Local" value="{{ apiPathName }}/{{ index['link'] }}">
+      <param name="Name" value="{{ index['index'] }}">
+    </OBJECT>
+    {% endfor %}
+    </ul>
+  </body>
+</html>

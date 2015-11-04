@@ -1,0 +1,12 @@
+{
+  "name": "wumouse/phalcon-doc-chm",
+  "description": "generate phalcon docs to chm format",
+  "minimum-stability": "dev",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "wumouse",
+      "email": "wumouse@qq.com"
+    }
+  ]
+}
