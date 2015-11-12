@@ -12,7 +12,7 @@ use Phalcon\Loader;
 use Wumouse\Script;
 
 call_user_func(function () {
-    $directory = __DIR__ . '/../../phalcon_docs/zh/_build/htmlhelp/reference';
+    $directory = __DIR__ . '/../../phalcon_docs/zh/_build/htmlhelp';
     $loader = require __DIR__ . '/../vendor/autoload.php';
 
     $loader->setPsr4('Wumouse\\', __DIR__ . '/../src');
