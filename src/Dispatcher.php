@@ -48,10 +48,11 @@ class Dispatcher
     public function getOptionsDescription()
     {
         $descriptions = array(
-            'backup' => '备份',
-            'restore' => '恢复',
-            'encoding' => '转换编码',
-            'main' => '主要任务, 处理 HTML 内容',
+            'backup' => 'backup html',
+            'restore' => 'convert encoding from gb2312 to utf-8',
+            'encoding' => 'restore from backup',
+            'main' => 'parse html dom , and then remove some tag cause document' .
+                ' load slowly, parse and generate index for chm',
         );
 
         $response = 'Notice: The order of arguments passed is the execute order' . PHP_EOL . PHP_EOL;
