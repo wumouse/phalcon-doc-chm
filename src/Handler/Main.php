@@ -58,6 +58,7 @@ class Main extends AbstractHandler
         $this->replaceIFrameToAnchor($dom, $splFileInfo);
         $this->removeJs($dom);
         $this->removeFooter($dom);
+        $this->changeEncodingMeta($dom);
 
         if (basename($splFileInfo->getPath()) === 'api') {
             try {
@@ -199,6 +200,26 @@ class Main extends AbstractHandler
         $footer = $dom->getElementById('footer');
         if ($footer) {
             $footer->parentNode->removeChild($footer);
+        }
+    }
+
+    /**
+     * @param \DOMDocument $dom
+     */
+    public function changeEncodingMeta(\DOMDocument $dom)
+    {
+        $metaNodes = $dom->getElementsByTagName('meta');
+        if ($metaNodes->length) {
+            foreach ($metaNodes as $metaNode) {
+                /** @var \DOMElement $metaNode */
+                $httpEquiv = $metaNode->attributes->getNamedItem('http-equiv');
+                if ($httpEquiv && $httpEquiv->nodeValue == 'Content-Type') {
+                    $content = $metaNode->attributes->getNamedItem('content');
+                    if ($content) {
+                        $content->nodeValue = 'text/html; charset=gb2312';
+                    }
+                }
+            }
         }
     }
 
