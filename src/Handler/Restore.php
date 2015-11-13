@@ -23,9 +23,6 @@ class Restore extends AbstractHandler
     public function iterating(Event $event, Script $script, File $file)
     {
         $splFileInfo = $file->getSplFileInfo();
-        if ($splFileInfo->getExtension() != 'html') {
-            return;
-        }
 
         $sourceFile = $splFileInfo->getPathname();
         $backupFile = $sourceFile . '.bak';

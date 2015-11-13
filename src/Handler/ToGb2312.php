@@ -23,16 +23,13 @@ class ToGb2312 extends AbstractHandler
     public function iterating(Event $event, Script $script, File $file)
     {
         $splFileInfo = $file->getSplFileInfo();
-        if ($splFileInfo->getExtension() != 'html') {
-            return;
-        }
 
-        $signFile = $splFileInfo->getPathname() . self::getBakExtension();
+        $signFile = $splFileInfo->getPathname() . ToUtf8::getBakExtension();
 
         if (stream_resolve_include_path($signFile)) {
             $content = mb_convert_encoding($file->getContent(), 'CP936', 'UTF-8');
             $file->setContent($content);
-            rename($signFile, $splFileInfo->getPathname() . '.gb2312');
+            rename($signFile, $splFileInfo->getPathname() . self::getBakExtension());
         }
     }
 
@@ -41,6 +38,6 @@ class ToGb2312 extends AbstractHandler
      */
     public static function getBakExtension()
     {
-        return '.utf8';
+        return '.gb2312';
     }
 }

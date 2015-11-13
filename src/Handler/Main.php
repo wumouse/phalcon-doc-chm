@@ -45,20 +45,19 @@ class Main extends AbstractHandler
     public function iterating(Event $event, Script $script, File $file)
     {
         $splFileInfo = $file->getSplFileInfo();
-        if ($splFileInfo->getExtension() != 'html') {
-            return;
-        }
 
         $html = $this->normalizeHtml5ToHtml4($file->getContent());
+        $html = $this->removeComments($html);
+        $html = $this->replaceEncodingMeta($html);
 
         $dom = new \DOMDocument();
+        $dom->formatOutput = true;
         $dom->loadHTML($html);
 
         $this->localStyleSheetLink($dom);
         $this->replaceIFrameToAnchor($dom, $splFileInfo);
         $this->removeJs($dom);
         $this->removeFooter($dom);
-        $this->changeEncodingMeta($dom);
 
         if (basename($splFileInfo->getPath()) === 'api') {
             try {
@@ -204,23 +203,16 @@ class Main extends AbstractHandler
     }
 
     /**
-     * @param \DOMDocument $dom
+     * @param string $content
+     * @return string
      */
-    public function changeEncodingMeta(\DOMDocument $dom)
+    public function replaceEncodingMeta($content)
     {
-        $metaNodes = $dom->getElementsByTagName('meta');
-        if ($metaNodes->length) {
-            foreach ($metaNodes as $metaNode) {
-                /** @var \DOMElement $metaNode */
-                $httpEquiv = $metaNode->attributes->getNamedItem('http-equiv');
-                if ($httpEquiv && $httpEquiv->nodeValue == 'Content-Type') {
-                    $content = $metaNode->attributes->getNamedItem('content');
-                    if ($content) {
-                        $content->nodeValue = 'text/html; charset=gb2312';
-                    }
-                }
-            }
-        }
+        return str_replace(
+            '<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />',
+            '<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />',
+            $content
+        );
     }
 
     /**
@@ -273,5 +265,14 @@ class Main extends AbstractHandler
             echo "downloaded static file: {$link}" , PHP_EOL;
             file_put_contents($script->getDirectory() . '/_static/' . $fileName, $content);
         }
+    }
+
+    /**
+     * @param string $html
+     * @return string
+     */
+    public function removeComments($html)
+    {
+        return preg_replace('#<!--[\w\W\r\n\s\S]+-->#', '', $html);
     }
 }

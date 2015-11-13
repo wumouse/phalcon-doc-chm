@@ -24,9 +24,6 @@ class ToUtf8 extends AbstractHandler
     public function iterating(Event $event, Script $script, File $file)
     {
         $splFileInfo = $file->getSplFileInfo();
-        if ($splFileInfo->getExtension() != 'html') {
-            return;
-        }
 
         $signFile = $splFileInfo->getPathname() . self::getBakExtension();
 

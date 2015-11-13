@@ -22,7 +22,7 @@ class Backup extends AbstractHandler
     public function iterating(Event $event, Script $script, File $file)
     {
         $splFileInfo = $file->getSplFileInfo();
-        if ($splFileInfo->isDir() || $splFileInfo->getExtension() != 'html') {
+        if ($splFileInfo->isDir()) {
             return;
         }
 

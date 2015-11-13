@@ -94,6 +94,9 @@ class Script
 
         /** @var \SplFileInfo $splFileInfo */
         foreach ($iterator as $splFileInfo) {
+            if ($splFileInfo->getExtension() != 'html') {
+                continue;
+            }
             $file = new File($splFileInfo);
             echo "Handing file: {$splFileInfo->getPathname()} ...", PHP_EOL;
             $eventsManager->fire('application:iterating', $this, $file, true);

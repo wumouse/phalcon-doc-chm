@@ -9,7 +9,6 @@
 
 namespace Test\Handler;
 
-use Masterminds\HTML5;
 use Phalcon\Di;
 use Phalcon\DiInterface;
 use Wumouse\Handler\Main;
@@ -28,11 +27,6 @@ class MainTest extends \PHPUnit_Framework_TestCase
      * @var Main
      */
     protected $main;
-
-    /**
-     * @var HTML5
-     */
-    protected $html5;
 
     /**
      * @inheritDoc
