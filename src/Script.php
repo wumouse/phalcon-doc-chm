@@ -11,6 +11,8 @@ namespace Wumouse;
 use Phalcon\DiInterface;
 use Phalcon\Events\Manager;
 use Phalcon\Http\Response;
+use Phalcon\Mvc\View;
+use Phalcon\Mvc\View\Engine\Volt;
 
 /**
  */
@@ -31,13 +33,26 @@ class Script
      */
     public function __construct(DiInterface $dependencyInjector)
     {
-        $this->dependencyInjector = $dependencyInjector;
+        $dependencyInjector->setShared('eventsManager', 'Phalcon\Events\Manager');
+
+        $dependencyInjector->setShared('view', function () {
+            $view = new View();
+            $view->setViewsDir(__DIR__ . '/../view/');
+            $view->registerEngines([
+                '.php' => 'Phalcon\Mvc\View\Engine\Php',
+                '.html' => 'Phalcon\Mvc\View\Engine\Volt',
+            ]);
+
+            return $view;
+        });
+
         $dispatcher = new Dispatcher($dependencyInjector);
+
+        $dependencyInjector->set('dispatcher', $dispatcher);
+
+        $this->dependencyInjector = $dependencyInjector;
         $options = $dispatcher->getOptions();
 
-        if (empty($options)) {
-            echo $dispatcher->getOptionsDescription();
-        }
         $dispatcher->dispatch($options);
     }
 
@@ -48,6 +63,17 @@ class Script
      */
     public function run($directory)
     {
+        /** @var Dispatcher $dispatcher */
+        $dispatcher = $this->dependencyInjector->get('dispatcher');
+
+        $options = $dispatcher->getOptions();
+        if (empty($options)) {
+            echo $dispatcher->getOptionsDescription();
+            return;
+        }
+
+        echo "executed commands: ", implode(', ', array_keys($options)) , PHP_EOL;
+
         if (!stream_resolve_include_path($directory)) {
             throw new \InvalidArgumentException("Directory: $directory not found");
         }

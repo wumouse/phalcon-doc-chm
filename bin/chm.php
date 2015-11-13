@@ -18,9 +18,6 @@ call_user_func(function () {
     $loader->setPsr4('Wumouse\\', __DIR__ . '/../src');
     $di = new Di();
 
-    $di->setShared('eventsManager', 'Phalcon\Events\Manager');
-    $di->setShared('html5', 'Masterminds\HTML5');
-
     $application = new Script($di);
     $application->run($directory);
 });

@@ -9,22 +9,22 @@
       <param name="Window Styles" value="0x800227">
     </object>
     <ul>
-    {% for index in indexesConstants %}
+    {% for item in index.getConstants() %}
     <LI><OBJECT type="text/sitemap">
-      <param name="Local" value="{{ apiPathName }}/{{ index['link'] }}">
-      <param name="Name" value="{{ index['index'] }}">
+      <param name="Local" value="api/{{ item.getLink() }}">
+      <param name="Name" value="{{ item.getIndex() }}">
     </OBJECT>
     {% endfor %}
-    {% for index in indexesMethods %}
+    {% for item in index.getMethods() %}
     <LI><OBJECT type="text/sitemap">
-      <param name="Local" value="{{ apiPathName }}/{{ index['link'] }}">
-      <param name="Name" value="{{ index['index'] }}">
+      <param name="Local" value="api/{{ item.getLink() }}">
+      <param name="Name" value="{{ item.getIndex() }}">
     </OBJECT>
     {% endfor %}
-    {% for index in indexesClasses %}
+    {% for item in index.getClasses() %}
     <LI><OBJECT type="text/sitemap">
-      <param name="Local" value="{{ apiPathName }}/{{ index['link'] }}">
-      <param name="Name" value="{{ index['index'] }}">
+      <param name="Local" value="api/{{ item.getLink() }}">
+      <param name="Name" value="{{ item.getIndex() }}">
     </OBJECT>
     {% endfor %}
     </ul>

@@ -16,7 +16,7 @@ use Wumouse\Script;
 /**
  * @package Handler
  */
-class Encoding extends AbstractHandler
+class ToUtf8 extends AbstractHandler
 {
     /**
      * @inheritDoc
@@ -28,7 +28,7 @@ class Encoding extends AbstractHandler
             return;
         }
 
-        $signFile = $splFileInfo->getPathname() . '.converted';
+        $signFile = $splFileInfo->getPathname() . self::getBakExtension();
 
         if (!stream_resolve_include_path($signFile)) {
             $content = mb_convert_encoding($file->getContent(), 'UTF-8', 'CP936');
@@ -36,5 +36,13 @@ class Encoding extends AbstractHandler
 
             touch($signFile);
         }
+    }
+
+    /**
+     * @return string
+     */
+    public static function getBakExtension()
+    {
+        return '.utf8';
     }
 }

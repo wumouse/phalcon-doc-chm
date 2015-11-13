@@ -8,10 +8,11 @@
 
 namespace Wumouse\Handler;
 
-use Masterminds\HTML5;
 use Phalcon\Di;
 use Phalcon\Events\Event;
+use Phalcon\Mvc\ViewInterface;
 use Wumouse\File;
+use Wumouse\Index;
 use Wumouse\Script;
 
 /**
@@ -20,15 +21,22 @@ use Wumouse\Script;
 class Main extends AbstractHandler
 {
     /**
-     * @var HTML5
+     * @var Index
      */
-    protected $html5;
+    protected $index;
+
+    /**
+     * Need download to local
+     *
+     * @var array
+     */
+    protected $localStatic = [];
 
     /**
      */
     public function __construct()
     {
-        $this->html5 = Di::getDefault()->get('html5');
+        $this->index = new Index();
     }
 
     /**
@@ -41,12 +49,34 @@ class Main extends AbstractHandler
             return;
         }
 
-        $dom = $this->html5->loadHTML($file->getContent());
+        $html = $this->normalizeHtml5ToHtml4($file->getContent());
+
+        $dom = new \DOMDocument();
+        $dom->loadHTML($html);
+
         $this->localStyleSheetLink($dom);
         $this->replaceIFrameToAnchor($dom, $splFileInfo);
         $this->removeJs($dom);
+        $this->removeFooter($dom);
 
-        $file->setContent($this->html5->saveHTML($dom));
+        if (basename($splFileInfo->getPath()) === 'api') {
+            try {
+                $this->index->handle($dom, $splFileInfo);
+            } catch (\RuntimeException $e) {
+                echo $e->getMessage() , PHP_EOL;
+            }
+        }
+
+        $file->setContent($dom->saveHTML());
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function afterIterate(Event $event, Script $script)
+    {
+        $this->renderIndex($script);
+        $this->downloadStatic($script);
     }
 
     /**
@@ -75,6 +105,13 @@ class Main extends AbstractHandler
                     $link->parentNode->removeChild($link);
                 } else {
                     $fileName = basename($urlParts['path']);
+                    if (!array_key_exists($fileName, $this->localStatic)) {
+                        $url = $href->nodeValue;
+                        if (!isset($urlParts['scheme'])) {
+                            $url = 'http:' . $url;
+                        }
+                        $this->localStatic[$fileName] = $url;
+                    }
                     $href->nodeValue = '../_static/' . $fileName;
                 }
             }
@@ -89,8 +126,7 @@ class Main extends AbstractHandler
      */
     public function replaceIFrameToAnchor(\DOMDocument $dom, \SplFileInfo $splFileInfo)
     {
-        $pathName = $splFileInfo->getPathname();
-        if (false !== strpos($pathName, '/api/')) {
+        if (basename($splFileInfo->getPath()) != 'api') {
             return;
         }
         $iFrames = $dom->getElementsByTagName('iframe');
@@ -150,6 +186,71 @@ class Main extends AbstractHandler
             if (true === $return) {
                 continue;
             }
+        }
+    }
+
+    /**
+     * 去掉 footer
+     *
+     * @param \DOMDocument $dom
+     */
+    public function removeFooter(\DOMDocument $dom)
+    {
+        $footer = $dom->getElementById('footer');
+        if ($footer) {
+            $footer->parentNode->removeChild($footer);
+        }
+    }
+
+    /**
+     * @param string $html
+     * @return string
+     */
+    public function normalizeHtml5ToHtml4($html)
+    {
+        return str_replace(
+            ['<header', '</header>', '<footer', '</footer>', '<nav', '</nav>'],
+            ['<div id="header"', '</div>', '<div id="footer"', '</div>', '<div id="nav"', '</div>'],
+            $html
+        );
+    }
+
+    /**
+     * @param Script $script
+     */
+    public function renderIndex(Script $script)
+    {
+        /** @var ViewInterface $view */
+        $view = $script->getDependencyInjector()->getShared('view');
+
+        ob_start();
+        $view->partial('indexTpl', ['index' => $this->index]);
+
+        file_put_contents($script->getDirectory() . '/PhalconDocumentationdoc.hhk', ob_get_clean());
+    }
+
+    /**
+     * @param Script $script
+     */
+    public function downloadStatic(Script $script)
+    {
+        $curl = curl_init();
+        foreach ($this->localStatic as $fileName => $link) {
+            curl_reset($curl);
+            curl_setopt_array($curl, [
+                CURLOPT_URL => $link,
+                CURLOPT_RETURNTRANSFER => 1,
+                CURLOPT_TIMEOUT => 3,
+            ]);
+
+            $content = curl_exec($curl);
+            $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            if ($httpCode != 200) {
+                echo "downloading static file: {$link} failed, response {$httpCode}" , PHP_EOL;
+                continue;
+            }
+            echo "downloaded static file: {$link}" , PHP_EOL;
+            file_put_contents($script->getDirectory() . '/_static/' . $fileName, $content);
         }
     }
 }

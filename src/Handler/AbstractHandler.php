@@ -40,6 +40,7 @@ abstract class AbstractHandler implements HandlerInterface
 
     /**
      * 完成迭代后
+     *
      * @param Event $event
      * @param Script $script
      */

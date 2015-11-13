@@ -25,11 +25,6 @@ class File
     protected $splFileInfo;
 
     /**
-     * @var bool
-     */
-    protected $changed = false;
-
-    /**
      * @param \SplFileInfo $splFileInfo
      */
     public function __construct(\SplFileInfo $splFileInfo)
@@ -66,7 +61,6 @@ class File
         }
         if ($content != $this->content) {
             $this->content = $content;
-            $this->changed = true;
         }
     }
 
@@ -76,9 +70,6 @@ class File
      */
     public function save($path = null)
     {
-        if (!$this->changed) {
-            return 0;
-        }
         if (!$path) {
             $path = $this->splFileInfo->getPathname();
         }

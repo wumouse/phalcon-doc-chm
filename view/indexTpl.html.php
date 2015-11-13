@@ -9,22 +9,22 @@
       <param name="Window Styles" value="0x800227">
     </object>
     <ul>
-    <?php foreach ($indexesConstants as $index) { ?>
+    <?php foreach ($index->getConstants() as $item) { ?>
     <LI><OBJECT type="text/sitemap">
-      <param name="Local" value="<?php echo $apiPathName; ?>/<?php echo $index['link']; ?>">
-      <param name="Name" value="<?php echo $index['index']; ?>">
+      <param name="Local" value="api/<?php echo $item->getLink(); ?>">
+      <param name="Name" value="<?php echo $item->getIndex(); ?>">
     </OBJECT>
     <?php } ?>
-    <?php foreach ($indexesMethods as $index) { ?>
+    <?php foreach ($index->getMethods() as $item) { ?>
     <LI><OBJECT type="text/sitemap">
-      <param name="Local" value="<?php echo $apiPathName; ?>/<?php echo $index['link']; ?>">
-      <param name="Name" value="<?php echo $index['index']; ?>">
+      <param name="Local" value="api/<?php echo $item->getLink(); ?>">
+      <param name="Name" value="<?php echo $item->getIndex(); ?>">
     </OBJECT>
     <?php } ?>
-    <?php foreach ($indexesClasses as $index) { ?>
+    <?php foreach ($index->getClasses() as $item) { ?>
     <LI><OBJECT type="text/sitemap">
-      <param name="Local" value="<?php echo $apiPathName; ?>/<?php echo $index['link']; ?>">
-      <param name="Name" value="<?php echo $index['index']; ?>">
+      <param name="Local" value="api/<?php echo $item->getLink(); ?>">
+      <param name="Name" value="<?php echo $item->getIndex(); ?>">
     </OBJECT>
     <?php } ?>
     </ul>

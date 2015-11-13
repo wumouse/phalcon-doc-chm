@@ -29,7 +29,7 @@ class Backup extends AbstractHandler
         $backupFile = $splFileInfo->getPathname() . '.bak';
 
         if (!stream_resolve_include_path($backupFile)) {
-            $file->save($backupFile);
+            copy($splFileInfo->getPathname(), $backupFile);
         }
     }
 }
