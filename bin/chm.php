@@ -13,9 +13,11 @@ use Wumouse\Script;
 
 call_user_func(function () {
     $directory = __DIR__ . '/../../phalcon_docs/zh/_build/htmlhelp';
-    $loader = require __DIR__ . '/../vendor/autoload.php';
+    $loader = new Loader();
 
-    $loader->setPsr4('Wumouse\\', __DIR__ . '/../src');
+    $loader->registerNamespaces([
+        'Wumouse' => __DIR__ . '/../src'
+    ])->register();
     $di = new Di();
 
     $application = new Script($di);
