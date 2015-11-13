@@ -49,7 +49,7 @@ class Clean extends AbstractHandler
 
         chdir($script->getDirectory());
 
-        $format = PHP_OS == 'win' ? 'del /S /Q %s' : 'find . -name %s | xargs rm -r';
+        $format = PHP_OS == 'WINNT' ? 'del /S /Q .\*%s' : 'find . -name %s | xargs rm -r';
         system(sprintf($format, ToGb2312::getBakExtension()));
         system(sprintf($format, ToUtf8::getBakExtension()));
 
