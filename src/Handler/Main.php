@@ -48,12 +48,12 @@ class Main extends AbstractHandler
 
         $html = $this->normalizeHtml5ToHtml4($file->getContent());
         $html = $this->removeComments($html);
-        $html = $this->replaceEncodingMeta($html);
 
         $dom = new \DOMDocument();
         $dom->formatOutput = true;
         $dom->loadHTML($html);
 
+        $this->replaceEncodingMeta($dom);
         $this->localStyleSheetLink($dom);
         $this->replaceIFrameToAnchor($dom, $splFileInfo);
         $this->removeJs($dom);
@@ -203,16 +203,17 @@ class Main extends AbstractHandler
     }
 
     /**
-     * @param string $content
+     * @param \DOMDocument|string $dom
      * @return string
      */
-    public function replaceEncodingMeta($content)
+    public function replaceEncodingMeta(\DOMDocument $dom)
     {
-        return str_replace(
-            '<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />',
-            '<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />',
-            $content
-        );
+        $metaNodes = $dom->getElementsByTagName('meta');
+        $contentTypeMeta = $metaNodes->item(0);
+        $contentAttr = $contentTypeMeta->attributes->getNamedItem('content');
+        if ($contentAttr && $contentAttr->nodeValue == 'text/html; charset=utf-8') {
+            $contentAttr->nodeValue = 'text/html; charset=gb2312';
+        }
     }
 
     /**
