@@ -21,5 +21,9 @@ call_user_func(function () {
     $di = new Di();
 
     $application = new Script($di);
-    $application->run($directory);
+    try {
+        $application->run($directory);
+    } catch (\Exception $e) {
+        echo get_class($e) , ':' , $e->getMessage() , PHP_EOL;
+    }
 });
