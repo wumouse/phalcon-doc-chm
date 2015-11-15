@@ -51,12 +51,12 @@ class Dispatcher
         // automatically execute all task in the procedure
         if (isset($this->options['auto'])) {
             $this->options = [
-                'restore',
-                'backup',
-                'toUtf8',
-                'main',
-                'save',
-                'clean',
+                'restore' => false,
+                'backup' => false,
+                'toUtf8' => false,
+                'main' => false,
+                'save' => false,
+                'clean' => false,
             ];
         }
     }
