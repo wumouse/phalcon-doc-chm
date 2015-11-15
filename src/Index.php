@@ -75,7 +75,7 @@ class Index
 
         $className = $this->getClassName();
 
-        $this->classes[] = new Item($className, $splFileInfo->getPathname());
+        $this->classes[] = new Item($className, $splFileInfo->getFilename());
 
         $this->handleConstants($className);
         $this->handleMethods($className);
@@ -114,7 +114,7 @@ class Index
                 $const = $constNode->nodeValue;
                 $constWithClass = "{$className}::{$const}";
 
-                $this->constants[] = new Item($constWithClass, $this->splFileInfo->getPathname());
+                $this->constants[] = new Item($constWithClass, $this->splFileInfo->getFilename());
 
                 $constNode->parentNode->appendChild($dom->createElement('em', ' ' . constant($constWithClass)));
             }
@@ -148,7 +148,7 @@ class Index
 
                     $this->methods[] = new Item(
                         "{$className}::{$method}",
-                        "{$this->splFileInfo->getPathname()}#{$method}"
+                        "{$this->splFileInfo->getFilename()}#{$method}"
                     );
                 }
             }

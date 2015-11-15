@@ -339,23 +339,21 @@ class Main extends AbstractHandler implements EventsAwareInterface
     {
         $staticNoNeeded = require __DIR__ . '/../../data/needCleanStaticFileList.php';
         $directory =$script->getDirectory();
-        foreach ($staticNoNeeded as $filePath) {
-            $fullPath = $directory . '/' . $filePath;
-            $splFileInfo = new \SplFileInfo($fullPath);
+
+        foreach ($staticNoNeeded as &$filePath) {
+            $fullPath = $directory . '/_static/' . $filePath;
             if (stream_resolve_include_path($fullPath)) {
-                if ($splFileInfo->isDir()) {
-                    $format = PHP_OS == 'WINNT' ? 'rmdir /S /Q %s' : 'rm -r %s';
-                    $fullPath = str_replace('/', DIRECTORY_SEPARATOR, $fullPath);
-                    passthru(sprintf($format, $fullPath), $return);
-                    if ($return === 0) {
-                        echo 'removed static ' , $filePath , PHP_EOL;
-                    }
-                } else {
-                    if (unlink($fullPath)) {
-                        echo 'removed static ' , $filePath , PHP_EOL;
-                    }
+                if (unlink($fullPath)) {
+                    echo 'removed static ' , $filePath , PHP_EOL;
                 }
             }
+
+            $filePath = "\n_static\\" . str_replace('/', '\\', $filePath);
         }
+
+        $hhpFile = $directory . '/PhalconDocumentationdoc.hhp';
+        $hhpFileContent = file_get_contents($hhpFile);
+        $hhpFileContent = str_replace($staticNoNeeded, '', $hhpFileContent, $count);
+        file_put_contents($hhpFile, $hhpFileContent);
     }
 }
