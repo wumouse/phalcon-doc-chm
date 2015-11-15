@@ -10,6 +10,9 @@ namespace Wumouse\Handler;
 
 use Phalcon\Di;
 use Phalcon\Events\Event;
+use Phalcon\Events\EventsAwareInterface;
+use Phalcon\Events\Manager;
+use Phalcon\Events\ManagerInterface;
 use Phalcon\Mvc\ViewInterface;
 use Wumouse\File;
 use Wumouse\Index;
@@ -18,7 +21,7 @@ use Wumouse\Script;
 /**
  * @package Wumouse\Handler
  */
-class Main extends AbstractHandler
+class Main extends AbstractHandler implements EventsAwareInterface
 {
     /**
      * @var Index
@@ -31,6 +34,11 @@ class Main extends AbstractHandler
      * @var array
      */
     protected $localStatic = [];
+
+    /**
+     * @var Manager
+     */
+    protected $eventsManager;
 
     /**
      */
@@ -53,11 +61,13 @@ class Main extends AbstractHandler
         $dom->formatOutput = true;
         $dom->loadHTML($html);
 
+        $this->eventsManager->fire('main:beforeChangeDom', $this, $dom, false);
+
         $this->replaceEncodingMeta($dom);
-        $this->localStyleSheetLink($dom);
+        $this->localStyleSheetLink($dom, $splFileInfo);
         $this->replaceIFrameToAnchor($dom, $splFileInfo);
         $this->removeJs($dom);
-        $this->removeFooter($dom);
+        $this->removeHeaderFooter($dom);
 
         if (basename($splFileInfo->getPath()) === 'api') {
             try {
@@ -66,6 +76,8 @@ class Main extends AbstractHandler
                 echo $e->getMessage() , PHP_EOL;
             }
         }
+
+        $this->eventsManager->fire('main:afterChangeDom', $this, [$dom, $splFileInfo], false);
 
         $file->setContent($dom->saveHTML());
     }
@@ -76,6 +88,7 @@ class Main extends AbstractHandler
     public function afterIterate(Event $event, Script $script)
     {
         $this->renderIndex($script);
+        $this->cleanNoNeededStatic($script);
         $this->downloadStatic($script);
     }
 
@@ -83,12 +96,13 @@ class Main extends AbstractHandler
      * localize the stylesheet from other domain
      *
      * @param \DOMDocument $dom
+     * @param \SplFileInfo|File $splFileInfo
      */
-    public function localStyleSheetLink(\DOMDocument $dom)
+    public function localStyleSheetLink(\DOMDocument $dom, \SplFileInfo $splFileInfo)
     {
         $links = $dom->getElementsByTagName('link');
 
-        $this->loopNodeListCallback($links, function ($link) {
+        $this->loopNodeListCallback($links, function ($link) use ($splFileInfo) {
             /** @var \DOMElement $link */
 
             $type = $link->attributes->getNamedItem('type');
@@ -112,7 +126,11 @@ class Main extends AbstractHandler
                         }
                         $this->localStatic[$fileName] = $url;
                     }
-                    $href->nodeValue = '../_static/' . $fileName;
+                    if (basename($splFileInfo->getPath()) != 'htmlhelp') {
+                        $href->nodeValue = '../_static/' . $fileName;
+                    } else {
+                        $href->nodeValue = '_static/' . $fileName;
+                    }
                 }
             }
         });
@@ -190,16 +208,30 @@ class Main extends AbstractHandler
     }
 
     /**
-     * 去掉 footer
+     * remove header and footer
      *
      * @param \DOMDocument $dom
      */
-    public function removeFooter(\DOMDocument $dom)
+    public function removeHeaderFooter(\DOMDocument $dom)
     {
         $footer = $dom->getElementById('footer');
         if ($footer) {
             $footer->parentNode->removeChild($footer);
         }
+
+        $header = $dom->getElementById('header');
+        if ($header) {
+            $header->parentNode->removeChild($header);
+        }
+
+        $xpath = new \DOMXPath($dom);
+        $preFooter = $xpath->evaluate('//div[@class="prefooter"]');
+        if ($preFooter->length) {
+            $node = $preFooter->item(0);
+            $node->parentNode->removeChild($node);
+        }
+
+
     }
 
     /**
@@ -212,6 +244,9 @@ class Main extends AbstractHandler
         $contentTypeMeta = $metaNodes->item(0);
         $contentAttr = $contentTypeMeta->attributes->getNamedItem('content');
         if ($contentAttr && $contentAttr->nodeValue == 'text/html; charset=utf-8') {
+            /*
+             * change the charset in meta the content will be convert encoding automatically.
+             */
             $contentAttr->nodeValue = 'text/html; charset=gb2312';
         }
     }
@@ -250,6 +285,10 @@ class Main extends AbstractHandler
     {
         $curl = curl_init();
         foreach ($this->localStatic as $fileName => $link) {
+            $filePath = $script->getDirectory() . '/_static/' . $fileName;
+            if (stream_resolve_include_path($filePath)) {
+                continue;
+            }
             curl_reset($curl);
             curl_setopt_array($curl, [
                 CURLOPT_URL => $link,
@@ -264,7 +303,7 @@ class Main extends AbstractHandler
                 continue;
             }
             echo "downloaded static file: {$link}" , PHP_EOL;
-            file_put_contents($script->getDirectory() . '/_static/' . $fileName, $content);
+            file_put_contents($filePath, $content);
         }
     }
 
@@ -274,6 +313,49 @@ class Main extends AbstractHandler
      */
     public function removeComments($html)
     {
-        return preg_replace('#<!--[\w\W\r\n\s\S]+-->#', '', $html);
+        return preg_replace('#(    )?<!--[<!\w\s\d="\':/.?+,&->\[\]]+-->#', '', $html);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setEventsManager(ManagerInterface $eventsManager)
+    {
+        $this->eventsManager = $eventsManager;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getEventsManager()
+    {
+        return $this->eventsManager;
+    }
+
+    /**
+     * @param Script $script
+     */
+    public function cleanNoNeededStatic(Script $script)
+    {
+        $staticNoNeeded = require __DIR__ . '/../../data/needCleanStaticFileList.php';
+        $directory =$script->getDirectory();
+        foreach ($staticNoNeeded as $filePath) {
+            $fullPath = $directory . '/' . $filePath;
+            $splFileInfo = new \SplFileInfo($fullPath);
+            if (stream_resolve_include_path($fullPath)) {
+                if ($splFileInfo->isDir()) {
+                    $format = PHP_OS == 'WINNT' ? 'rmdir /S /Q %s' : 'rm -r %s';
+                    $fullPath = str_replace('/', DIRECTORY_SEPARATOR, $fullPath);
+                    passthru(sprintf($format, $fullPath), $return);
+                    if ($return === 0) {
+                        echo 'removed static ' , $filePath , PHP_EOL;
+                    }
+                } else {
+                    if (unlink($fullPath)) {
+                        echo 'removed static ' , $filePath , PHP_EOL;
+                    }
+                }
+            }
+        }
     }
 }

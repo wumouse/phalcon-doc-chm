@@ -9,7 +9,6 @@
 
 namespace Test\Other;
 
-use Masterminds\HTML5;
 use Phalcon\Di;
 
 /**
@@ -27,19 +26,16 @@ class Test extends \PHPUnit_Framework_TestCase
      */
     public function setUp()
     {
-        /** @var HTML5 $html5 */
-        $html5 = Di::getDefault()->get('html5');
         $html = <<<'HTML'
 <div align="center">
-    <iframe src="//player.vimeo.com/video/68893840" width="500" height="313" frameborder="0" webkitAllowFullScreen
-            mozallowfullscreen allowFullScreen></iframe>
+    <iframe src="//player.vimeo.com/video/68893840" width="500" height="313" frameborder="0" allowFullScreen></iframe>
 </div>
 <div align="center">
-    <iframe src="//player.vimeo.com/video/69867342" width="500" height="313" frameborder="0" webkitAllowFullScreen
-            mozallowfullscreen allowFullScreen></iframe>
+    <iframe src="//player.vimeo.com/video/69867342" width="500" height="313" frameborder="0" allowFullScreen></iframe>
 </div>
 HTML;
-        $dom = $html5->loadHTML($html);
+        $dom = new \DOMDocument();
+        $dom->loadHTML($html);
         $this->dom = $dom;
     }
 
@@ -50,6 +46,10 @@ HTML;
         foreach ($divList as $domElement) {
             $domElement->parentNode->removeChild($domElement);
         }
-        $this->assertEquals($divList->length, 0);
+        $this->assertEquals(
+            $divList->length,
+            0,
+            'use foreach to iterate dom list and remove child will cause a problem'
+        );
     }
 }

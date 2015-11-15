@@ -63,6 +63,10 @@ class Script
      */
     public function run($directory)
     {
+        if (!stream_resolve_include_path($directory)) {
+            throw new \InvalidArgumentException("Directory: $directory not found");
+        }
+
         /** @var Dispatcher $dispatcher */
         $dispatcher = $this->dependencyInjector->get('dispatcher');
 
@@ -73,10 +77,6 @@ class Script
         }
 
         echo "executed commands: ", implode(', ', array_keys($options)) , PHP_EOL;
-
-        if (!stream_resolve_include_path($directory)) {
-            throw new \InvalidArgumentException("Directory: $directory not found");
-        }
 
         $this->directory = $directory;
 
@@ -99,8 +99,10 @@ class Script
             }
             $file = new File($splFileInfo);
             echo "Handing file: {$splFileInfo->getPathname()} ...", PHP_EOL;
-            $eventsManager->fire('application:iterating', $this, $file, true);
-            $file->save();
+            $continue = $eventsManager->fire('application:iterating', $this, $file, true);
+            if (false === $continue) {
+                return;
+            }
         }
 
         $eventsManager->fire('application:afterIterate', $this, null, true);
