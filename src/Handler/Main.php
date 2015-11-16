@@ -144,7 +144,7 @@ class Main extends AbstractHandler implements EventsAwareInterface
      */
     public function replaceIFrameToAnchor(\DOMDocument $dom, \SplFileInfo $splFileInfo)
     {
-        if (basename($splFileInfo->getPath()) != 'api') {
+        if (basename($splFileInfo->getPath()) != 'reference') {
             return;
         }
         $iFrames = $dom->getElementsByTagName('iframe');
@@ -155,6 +155,7 @@ class Main extends AbstractHandler implements EventsAwareInterface
             $src = $iFrame->attributes->getNamedItem('src')->nodeValue;
             $anchor = $dom->createElement('a', $src);
             $anchor->setAttribute('href', $src);
+            $anchor->setAttribute('target', '_blank');
             $iFrame->parentNode->replaceChild($anchor, $iFrame);
         });
     }
