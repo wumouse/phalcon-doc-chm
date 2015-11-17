@@ -156,6 +156,7 @@ class Main extends AbstractHandler implements EventsAwareInterface
             $anchor = $dom->createElement('a', $src);
             $anchor->setAttribute('href', $src);
             $anchor->setAttribute('target', '_blank');
+            $anchor->setAttribute('class', 'reference external');
             $iFrame->parentNode->replaceChild($anchor, $iFrame);
         });
     }
