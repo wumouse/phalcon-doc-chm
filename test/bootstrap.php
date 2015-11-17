@@ -7,14 +7,16 @@
  */
 use Composer\Autoload\ClassLoader;
 use Phalcon\Di;
+use Phalcon\Loader;
 
-/** @var ClassLoader $loader */
-$loader = require __DIR__ . '/../vendor/autoload.php';
+$loader = new Loader();
 
-$loader->setPsr4('Wumouse\\', __DIR__ . '/../src');
-$loader->setPsr4('Test\\', __DIR__);
+$loader->registerNamespaces([
+    'Wumouse' => __DIR__ . '/../src',
+    'Test' => __DIR__ . '/../test',
+])->register();
 
 $di = new Di();
 
-$di->setShared('eventsManager', 'Phalcon\Events\Manager');
-$di->setShared('html5', 'Masterminds\HTML5');
+//$di->setShared('eventsManager', 'Phalcon\Events\Manager');
+//$di->setShared('html5', 'Masterminds\HTML5');

@@ -52,7 +52,7 @@ class MainTest extends \PHPUnit_Framework_TestCase
         $fixedHtml = __DIR__ . '/../data/iframe_fixed.html';
         
         $this->dom->loadHTMLFile($testHtml);
-        $splFileInfo = new \SplFileInfo('api/test.html');
+        $splFileInfo = new \SplFileInfo('reference/test.html');
 
         $this->main->localStyleSheetLink($this->dom, new \SplFileInfo($testHtml));
         $this->main->replaceIFrameToAnchor($this->dom, $splFileInfo);
