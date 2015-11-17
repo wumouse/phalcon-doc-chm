@@ -76,6 +76,8 @@ class Index
         $className = $this->getClassName();
 
         $this->classes[] = new Item($className, $splFileInfo->getFilename());
+        $reflectionClass = new \ReflectionClass($className);
+        $this->classes[] = new Item($reflectionClass->getShortName(), $splFileInfo->getFilename());
 
         $this->handleConstants($className);
         $this->handleMethods($className);
