@@ -6,7 +6,6 @@
  * @version $Id$
  */
 
-
 namespace Wumouse;
 
 /**

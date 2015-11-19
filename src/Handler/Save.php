@@ -8,7 +8,6 @@
 
 namespace Wumouse\Handler;
 
-
 use Phalcon\Events\Event;
 use Wumouse\File;
 use Wumouse\Script;

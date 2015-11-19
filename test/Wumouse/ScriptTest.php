@@ -6,7 +6,6 @@
  * @version $Id$
  */
 
-
 namespace Test\Wumouse;
 
 use Phalcon\Di;

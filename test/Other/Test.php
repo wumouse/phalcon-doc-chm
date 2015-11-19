@@ -6,7 +6,6 @@
  * @version $Id$
  */
 
-
 namespace Test\Other;
 
 use Phalcon\Di;
