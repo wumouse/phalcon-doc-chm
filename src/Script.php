@@ -10,9 +10,7 @@ namespace Wumouse;
 
 use Phalcon\DiInterface;
 use Phalcon\Events\Manager;
-use Phalcon\Http\Response;
 use Phalcon\Mvc\View;
-use Phalcon\Mvc\View\Engine\Volt;
 
 /**
  */

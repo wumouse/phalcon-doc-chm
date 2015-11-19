@@ -8,7 +8,6 @@
 
 namespace Wumouse\Handler;
 
-use Phalcon\Di;
 use Phalcon\Events\Event;
 use Phalcon\Events\EventsAwareInterface;
 use Phalcon\Events\Manager;
