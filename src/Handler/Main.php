@@ -102,9 +102,7 @@ class Main extends AbstractHandler implements EventsAwareInterface
     {
         $links = $dom->getElementsByTagName('link');
 
-        $this->loopNodeListCallback($links, function ($link) use ($splFileInfo) {
-            /** @var \DOMElement $link */
-
+        $this->loopNodeListCallback($links, function (\DOMElement $link) use ($splFileInfo) {
             $type = $link->attributes->getNamedItem('type');
             if (!$type || $type->nodeValue != 'text/css') {
                 return;
@@ -149,9 +147,7 @@ class Main extends AbstractHandler implements EventsAwareInterface
         }
         $iFrames = $dom->getElementsByTagName('iframe');
 
-        $this->loopNodeListCallback($iFrames, function ($iFrame) use ($dom) {
-            /** @var \DOMElement $iFrame */
-
+        $this->loopNodeListCallback($iFrames, function (\DOMElement $iFrame) use ($dom) {
             $src = $iFrame->attributes->getNamedItem('src')->nodeValue;
             $anchor = $dom->createElement('a', $src);
             $anchor->setAttribute('href', $src);
@@ -172,7 +168,7 @@ class Main extends AbstractHandler implements EventsAwareInterface
     {
         $scripts = $dom->getElementsByTagName('script');
 
-        $this->loopNodeListCallback($scripts, function ($script) {
+        $this->loopNodeListCallback($scripts, function (\DOMElement $script) {
             $script->parentNode->removeChild($script);
         });
     }
@@ -357,7 +353,7 @@ class Main extends AbstractHandler implements EventsAwareInterface
 
         $hhpFile = $directory . '/PhalconDocumentationdoc.hhp';
         $hhpFileContent = file_get_contents($hhpFile);
-        $hhpFileContent = str_replace($staticNoNeeded, '', $hhpFileContent, $count);
+        $hhpFileContent = str_replace($staticNoNeeded, '', $hhpFileContent);
         file_put_contents($hhpFile, $hhpFileContent);
     }
 }
