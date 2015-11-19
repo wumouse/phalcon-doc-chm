@@ -5,6 +5,7 @@
  * @author Haow1 <haow1@jumei.com>
  * @version $Id$
  */
+
 use Composer\Autoload\ClassLoader;
 use Phalcon\Di;
 use Phalcon\Loader;
@@ -17,6 +18,3 @@ $loader->registerNamespaces([
 ])->register();
 
 $di = new Di();
-
-//$di->setShared('eventsManager', 'Phalcon\Events\Manager');
-//$di->setShared('html5', 'Masterminds\HTML5');
