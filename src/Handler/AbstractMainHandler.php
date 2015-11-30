@@ -1,9 +1,9 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: wumouse
- * Date: 2015/11/15
- * Time: 10:10
+ * phalcon-doc-chm.
+ *
+ * @author Haow1 <haow1@jumei.com>
+ * @version $Id$
  */
 
 namespace Wumouse\Handler;
